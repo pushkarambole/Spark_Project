@@ -7,28 +7,28 @@ Developed Py-Spark solutions for efficiently performing the analysis of huge dat
 
 ### I. Finding the hottest and coldest day along the station code and date for each year
 
->>> file_path = "/data/weather/2010"
->>> inTextData = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+>>> file_path = "/data/weather/2010"  
+>>> inTextData = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
 >>> file_path = "/data/weather/2011"                                            
 >>> inTextData2 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
 19/11/29 16:00:50 WARN SharedInMemoryCache: Evicting cached table partition metadata from memory due to size constraints (spark.sql.hive.filesourcePartitionFileCacheSize = 262144000 bytes). This may impact query planning performance.
->>> inTextData2 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+>>> inTextData2 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
 >>> file_path = "/data/weather/2012"                                            
->>> inTextData3 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+>>> inTextData3 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
 >>> file_path = "/data/weather/2013"                                            
->>> inTextData4 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+>>> inTextData4 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
 >>> file_path = "/data/weather/2014"                                            
 >>> inTextData5 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
->>> data20102014=inTextData.unionAll(inTextData2).unionAll(inTextData3).unionAll(inTextData4).unionAll(inTextData5)
->>> data20102014.count()
+>>> data20102014=inTextData.unionAll(inTextData2).unionAll(inTextData3).unionAll(inTextData4).unionAll(inTextData5)  
+>>> data20102014.count()  
 18547460                                                                        
->>> rdd1 = data20102014.rdd
->>> rdd2 = rdd1.map(lambda x: str(x).split('=')[1])
->>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))
->>> rdd4 = rdd3.map(lambda x: x[2:-2])
->>> rdd4.saveAsTextFile('home/amboleps/spark20102014'+'temp')
->>> newInData = spark.read.csv('home/amboleps/spark20102014'+'temp',header=False,sep=' ')
->>> cleanData = newInData.drop('_c1','_c4','_c6','_c8','_c10','_c12','_c14')    
+>>> rdd1 = data20102014.rdd  
+>>> rdd2 = rdd1.map(lambda x: str(x).split('=')[1])  
+>>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))  
+>>> rdd4 = rdd3.map(lambda x: x[2:-2])  
+>>> rdd4.saveAsTextFile('home/amboleps/spark20102014'+'temp')  
+>>> newInData = spark.read.csv('home/amboleps/spark20102014'+'temp',header=False,sep=' ')  
+>>> cleanData = newInData.drop('_c1','_c4','_c6','_c8','_c10','_c12','_c14')  
 >>> cleanData = cleanData.withColumnRenamed('_c0','STN').withColumnRenamed('_c2','YEARMODA')\
 ...                     .withColumnRenamed('_c3','TEMP').withColumnRenamed('_c5','DEWP')\
 ...                     .withColumnRenamed('_c7','SLP').withColumnRenamed('_c9','STP')\
@@ -36,8 +36,8 @@ Developed Py-Spark solutions for efficiently performing the analysis of huge dat
 ...                     .withColumnRenamed('_c15','MXSPD').withColumnRenamed('_c16','GUST')\
 ...                     .withColumnRenamed('_c17','MAX').withColumnRenamed('_c18','MIN')\
 ...                     .withColumnRenamed('_c19','PRCP').withColumnRenamed('_c20','SNDP')\
-...                     .withColumnRenamed('_c21','FRSHTT')
->>> cleanData.show(2, False)
+...                     .withColumnRenamed('_c21','FRSHTT')  
+>>> cleanData.show(2, False)  
 +------+--------+----+------+------+------+-----+----+-----+-----+-----+-----+-----+-----+------+
 |STN   |YEARMODA|TEMP|DEWP  |SLP   |STP   |VISIB|WDSP|MXSPD|GUST |MAX  |MIN  |PRCP |SNDP |FRSHTT|
 +------+--------+----+------+------+------+-----+----+-----+-----+-----+-----+-----+-----+------+
@@ -46,20 +46,20 @@ Developed Py-Spark solutions for efficiently performing the analysis of huge dat
 +------+--------+----+------+------+------+-----+----+-----+-----+-----+-----+-----+-----+------+
 only showing top 2 rows
 
->>> from pyspark.sql.functions import col, split
->>> clean1= cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("tempMax", split(col("MAX"), "\\*").getItem(1))
->>> clean2 = clean1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("tempMin", split(col("MIN"), "\\*").getItem(1))
->>> clean3=clean2.drop('tempMax','tempMin')
->>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))
->>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))
->>> clean6=clean5.drop('MAX','MIN')
->>> clean6=clean6.withColumnRenamed("NEW_MAX","MAX")
->>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")
+>>> from pyspark.sql.functions import col, split  
+>>> clean1= cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("tempMax", split(col("MAX"), "\\*").getItem(1))  
+>>> clean2 = clean1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("tempMin", split(col("MIN"), "\\*").getItem(1))  
+>>> clean3=clean2.drop('tempMax','tempMin')  
+>>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))  
+>>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))  
+>>> clean6=clean5.drop('MAX','MIN')  
+>>> clean6=clean6.withColumnRenamed("NEW_MAX","MAX")  
+>>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")  
 >>> rdd11=clean6.rdd
 >>> clean6.createOrReplaceTempView("cleandatapushkar")
->>> from pyspark.sql.functions import *
-
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2010%') AND YEARMODA like '2010%'").show()
+>>> 
+>>> from pyspark.sql.functions import *  
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2010%') AND YEARMODA like '2010%'").show()  
 +------+-----+----+----+-----+                                                  
 |   STN|MONTH|DATE|YEAR|  MAX|
 +------+-----+----+----+-----+
@@ -77,7 +77,7 @@ only showing top 2 rows
 
 >>> output1_2010min=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2010%') AND YEARMODA like '2010%'")
 >>> output1_2010min.coalesce(1).write.format('csv').save("home/amboleps/output/Min2010.csv", header='true')
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2011%') AND YEARMODA like '2011%'").show()
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2011%') AND YEARMODA like '2011%'").show()   
 +------+-----+----+----+-----+                                                  
 |   STN|MONTH|DATE|YEAR|  MAX|
 +------+-----+----+----+-----+
@@ -95,13 +95,14 @@ only showing top 2 rows
 
 >>> output1_2011min=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2011%') AND YEARMODA like '2011%'")
 >>> output1_2011min.coalesce(1).write.format('csv').save("home/amboleps/output/Min2011.csv", header='true')
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2012%') AND YEARMODA like '2012%'").show()
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2012%') AND YEARMODA like '2012%'").show()   
 +------+-----+----+----+-----+                                                  
 |   STN|MONTH|DATE|YEAR|  MAX|
 +------+-----+----+----+-----+
 |722577|   07|  12|2012|132.8|
 +------+-----+----+----+-----+
 
+    
 >>> output1_2012max=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2012%') AND YEARMODA like '2012%'")
 >>> output1_2012max.coalesce(1).write.format('csv').save("home/amboleps/output/Max2012.csv", header='true')
 >>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2012%') AND YEARMODA like '2012%'").show()
@@ -113,13 +114,13 @@ only showing top 2 rows
 
 >>> output1_2012min=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2012%') AND YEARMODA like '2012%'")
 >>> output1_2012min.coalesce(1).write.format('csv').save("home/amboleps/output/Min2012.csv", header='true')
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2013%') AND YEARMODA like '2013%'").show()
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2013%') AND YEARMODA like '2013%'").show()                    
 +------+-----+----+----+-----+                                                  
 |   STN|MONTH|DATE|YEAR|  MAX|
 +------+-----+----+----+-----+
 |406890|   07|  12|2013|132.8|
 +------+-----+----+----+-----+
-
+ 
 >>> output1_2013max=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2013%') AND YEARMODA like '2013%'")
 >>> output1_2013max.coalesce(1).write.format('csv').save("home/amboleps/output/Max2013.csv", header='true')
 >>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2013%') AND YEARMODA like '2013%'").show()
@@ -130,9 +131,10 @@ only showing top 2 rows
 |895770|   07|  31|2013|-115.1|
 +------+-----+----+----+------+
 
+ 
 >>> output1_2013min=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2013%') AND YEARMODA like '2013%'")
 >>> output1_2013min.coalesce(1).write.format('csv').save("home/amboleps/output/Min2013.csv", header='true')
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2014%') AND YEARMODA like '2014%'").show()
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2014%') AND YEARMODA like '2014%'").show()          
 +------+-----+----+----+-----+                                                  
 |   STN|MONTH|DATE|YEAR|  MAX|
 +------+-----+----+----+-----+
@@ -151,11 +153,11 @@ only showing top 2 rows
 >>> output1_2014min=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2014%') AND YEARMODA like '2014%'")
 >>> output1_2014min.coalesce(1).write.format('csv').save("home/amboleps/output/Min2014.csv", header='true')
 
->>> file_path = "/data/weather/2015"
->>> inTextData6 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+>>> file_path = "/data/weather/2015"  
+>>> inTextData6 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
 >>> file_path = "/data/weather/2016"                                            
 >>> inTextData7 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
-19/11/29 19:30:54 WARN SharedInMemoryCache: Evicting cached table partition metadata from memory due to size constraints (spark.sql.hive.filesourcePartitionFileCacheSize = 262144000 bytes). This may impact query planning performance.
+19/11/29 19:30:54 WARN SharedInMemoryCache: Evicting cached table partition metadata from memory due to size constraints (spark.sql.hive.filesourcePartitionFileCacheSize = 262144000 bytes). This may impact query planning performance.  
 >>> inTextData7 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
 >>> file_path = "/data/weather/2017"                                            
 >>> inTextData8 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
@@ -163,15 +165,14 @@ only showing top 2 rows
 >>> inTextData9 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
 >>> file_path = "/data/weather/2019"                                            
 >>> inTextData10 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
->>> data20152019=inTextData6.unionAll(inTextData7).unionAll(inTextData8).unionAll(inTextData9).unionAll(inTextData10)
->>> rdd1 = data20152019.rdd
->>> rdd2 = rdd1.map(lambda x: str(x).split('=')[1])
->>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))
->>> rdd4 = rdd3.map(lambda x: x[2:-2])
->>> rdd4.saveAsTextFile('home/amboleps/spark20152019'+'temp')
->>> newInData = spark.read.csv('home/amboleps/spark20152019'+'temp',header=False,sep=' ')
+>>> data20152019=inTextData6.unionAll(inTextData7).unionAll(inTextData8).unionAll(inTextData9).unionAll(inTextData10)  
+>>> rdd1 = data20152019.rdd  
+>>> rdd2 = rdd1.map(lambda x: str(x).split('=')[1])  
+>>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))  
+>>> rdd4 = rdd3.map(lambda x: x[2:-2])  
+>>> rdd4.saveAsTextFile('home/amboleps/spark20152019'+'temp')  
+>>> newInData = spark.read.csv('home/amboleps/spark20152019'+'temp',header=False,sep=' ')  
 >>> cleanData = newInData.drop('_c1','_c4','_c6','_c8','_c10','_c12','_c14')    
-
 >>> cleanData = cleanData.withColumnRenamed('_c0','STN').withColumnRenamed('_c2','YEARMODA')\
 ...                     .withColumnRenamed('_c3','TEMP').withColumnRenamed('_c5','DEWP')\
 ...                     .withColumnRenamed('_c7','SLP').withColumnRenamed('_c9','STP')\
@@ -179,20 +180,21 @@ only showing top 2 rows
 ...                     .withColumnRenamed('_c15','MXSPD').withColumnRenamed('_c16','GUST')\
 ...                     .withColumnRenamed('_c17','MAX').withColumnRenamed('_c18','MIN')\
 ...                     .withColumnRenamed('_c19','PRCP').withColumnRenamed('_c20','SNDP')\
-...                     .withColumnRenamed('_c21','FRSHTT')
+...                     .withColumnRenamed('_c21','FRSHTT')  
 >>> from pyspark.sql.functions import col, split
 >>> clean1= cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("tempMax", split(col("MAX"), "\\*").getItem(1))
 >>> clean2 = clean1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("tempMin", split(col("MIN"), "\\*").getItem(1))
 >>> clean3=clean2.drop('tempMax','tempMin')
->>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))
->>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))
->>> clean6=clean5.drop('MAX','MIN')
->>> clean6=clean6.withColumnRenamed("NEW_MAX","MAX")
->>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")
+>>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))  
+>>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))  
+>>> clean6=clean5.drop('MAX','MIN')  
+>>> clean6=clean6.withColumnRenamed("NEW_MAX","MAX")  
+>>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")  
 >>> clean6.createOrReplaceTempView("cleandatapushkar")
->>> from pyspark.sql.functions import *
-
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2015%') AND YEARMODA like '2015%'").show()
+>>> 
+>>> from pyspark.sql.functions import * 
+>>>
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2015%') AND YEARMODA like '2015%'").show()  
 +------+-----+----+----+-----+                                                  
 |   STN|MONTH|DATE|YEAR|  MAX|
 +------+-----+----+----+-----+
@@ -212,7 +214,6 @@ only showing top 2 rows
 
 >>> output1_2015min=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2015%') AND YEARMODA like '2015%'")
 >>> output1_2015min.coalesce(1).write.format('csv').save("home/amboleps/output/Min2015.csv", header='true')
-
 >>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2016%') AND YEARMODA like '2016%'").show()
 +------+-----+----+----+-----+                                                  
 |   STN|MONTH|DATE|YEAR|  MAX|
@@ -231,7 +232,7 @@ only showing top 2 rows
 
 >>> output1_2016min=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2016%') AND YEARMODA like '2016%'")
 >>> output1_2016min.coalesce(1).write.format('csv').save("home/amboleps/output/Min2016.csv", header='true')
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2017%') AND YEARMODA like '2017%'").show()
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2017%') AND YEARMODA like '2017%'").show()  
 +------+-----+----+----+-----+                                                  
 |   STN|MONTH|DATE|YEAR|  MAX|
 +------+-----+----+----+-----+
@@ -249,7 +250,7 @@ only showing top 2 rows
 
 >>> output1_2017min=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2017%') AND YEARMODA like '2017%'")
 >>> output1_2017min.coalesce(1).write.format('csv').save("home/amboleps/output/Min2017.csv", header='true')
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2018%') AND YEARMODA like '2018%'").show()
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2018%') AND YEARMODA like '2018%'").show()   
 +------+-----+----+----+-----+                                                  
 |   STN|MONTH|DATE|YEAR|  MAX|
 +------+-----+----+----+-----+
@@ -268,7 +269,7 @@ only showing top 2 rows
 >>> output1_2018min=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2018%') AND YEARMODA like '2018%'")
 >>> output1_2018min.coalesce(1).write.format('csv').save("home/amboleps/output/Min2018.csv", header='true')
 
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2019%') AND YEARMODA like '2019%'").show()
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2019%') AND YEARMODA like '2019%'").show()  
 +------+-----+----+----+-----+                                                  
 |   STN|MONTH|DATE|YEAR|  MAX|
 +------+-----+----+----+-----+
@@ -290,38 +291,37 @@ only showing top 2 rows
 
 ### II. Finding the hottest and coldest day across all years (2010 - 2019) along with station code and date
 
->>> file_path = "/data/weather/2010"
->>> inTextData = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+>>> file_path = "/data/weather/2010"  
+>>> inTextData = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
 >>> file_path = "/data/weather/2011"                                            
 >>> inTextData2 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
-19/11/29 16:00:50 WARN SharedInMemoryCache: Evicting cached table partition metadata from memory due to size constraints (spark.sql.hive.filesourcePartitionFileCacheSize = 262144000 bytes). This may impact query planning performance.
->>> inTextData2 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
->>> file_path = "/data/weather/2012"                                            
->>> inTextData3 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
->>> file_path = "/data/weather/2013"                                            
->>> inTextData4 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
->>> file_path = "/data/weather/2014"                                            
->>> inTextData5 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
->>> file_path = "/data/weather/2015"
->>> inTextData6 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+19/11/29 16:00:50 WARN SharedInMemoryCache: Evicting cached table partition metadata from memory due to size constraints (spark.sql.hive.filesourcePartitionFileCacheSize = 262144000 bytes). This may impact query planning performance.  
+>>> inTextData2 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
+>>> file_path = "/data/weather/2012"                                           
+>>> inTextData3 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
+>>> file_path = "/data/weather/2013"                                        
+>>> inTextData4 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
+>>> file_path = "/data/weather/2014"                                           
+>>> inTextData5 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
+>>> file_path = "/data/weather/2015"  
 >>> file_path = "/data/weather/2016"                                            
 >>> inTextData7 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
-19/11/29 19:30:54 WARN SharedInMemoryCache: Evicting cached table partition metadata from memory due to size constraints (spark.sql.hive.filesourcePartitionFileCacheSize = 262144000 bytes). This may impact query planning performance.
->>> inTextData7 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+19/11/29 19:30:54 WARN SharedInMemoryCache: Evicting cached table partition metadata from memory due to size constraints (spark.sql.hive.filesourcePartitionFileCacheSize = 262144000 bytes). This may impact query planning performance.  
+>>> inTextData7 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
 >>> file_path = "/data/weather/2017"                                            
->>> inTextData8 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+>>> inTextData8 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
 >>> file_path = "/data/weather/2018"                                            
->>> inTextData9 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+>>> inTextData9 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
 >>> file_path = "/data/weather/2019"                                            
 >>> inTextData10 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
 >>>data20102019=inTextData.unionAll(inTextData2).unionAll(inTextData3).unionAll(inTextData4).unionAll(inTextData5).unionAll(inTextData6).unionAll(inTextData7).unionAll(inTextData8).unionAll(inTextData9).unionAll(inTextData10)                                                                      
->>> rdd1 = data20102019.rdd
->>> rdd2 = rdd1.map(lambda x: str(x).split('=')[1])
->>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))
->>> rdd4 = rdd3.map(lambda x: x[2:-2])
->>> rdd4.saveAsTextFile('home/amboleps/spark20102019'+'temp')
->>> newInData = spark.read.csv('home/amboleps/spark20102019'+'temp',header=False,sep=' ')
->>> cleanData = newInData.drop('_c1','_c4','_c6','_c8','_c10','_c12','_c14')    
+>>> rdd1 = data20102019.rdd  
+>>> rdd2 = rdd1.map(lambda x: str(x).split('=')[1])  
+>>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))  
+>>> rdd4 = rdd3.map(lambda x: x[2:-2])  
+>>> rdd4.saveAsTextFile('home/amboleps/spark20102019'+'temp')  
+>>> newInData = spark.read.csv('home/amboleps/spark20102019'+'temp',header=False,sep=' ')  
+>>> cleanData = newInData.drop('_c1','_c4','_c6','_c8','_c10','_c12','_c14')  
 >>> cleanData = cleanData.withColumnRenamed('_c0','STN').withColumnRenamed('_c2','YEARMODA')\
 ...                     .withColumnRenamed('_c3','TEMP').withColumnRenamed('_c5','DEWP')\
 ...                     .withColumnRenamed('_c7','SLP').withColumnRenamed('_c9','STP')\
@@ -330,7 +330,7 @@ only showing top 2 rows
 ...                     .withColumnRenamed('_c17','MAX').withColumnRenamed('_c18','MIN')\
 ...                     .withColumnRenamed('_c19','PRCP').withColumnRenamed('_c20','SNDP')\
 ...                     .withColumnRenamed('_c21','FRSHTT')
->>> cleanData.show(2, False)
+>>> cleanData.show(2, False)  
 +------+--------+----+------+------+------+-----+----+-----+-----+-----+-----+-----+-----+------+
 |STN   |YEARMODA|TEMP|DEWP  |SLP   |STP   |VISIB|WDSP|MXSPD|GUST |MAX  |MIN  |PRCP |SNDP |FRSHTT|
 +------+--------+----+------+------+------+-----+----+-----+-----+-----+-----+-----+-----+------+
@@ -339,20 +339,21 @@ only showing top 2 rows
 +------+--------+----+------+------+------+-----+----+-----+-----+-----+-----+-----+-----+------+
 only showing top 2 rows
 
->>> from pyspark.sql.functions import col, split
->>> clean1= cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("tempMax", split(col("MAX"), "\\*").getItem(1))
->>> clean2 = clean1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("tempMin", split(col("MIN"), "\\*").getItem(1))
->>> clean3=clean2.drop('tempMax','tempMin')
->>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))
->>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))
->>> clean6=clean5.drop('MAX','MIN')
->>> clean6=clean6.withColumnRenamed("NEW_MAX","MAX")
->>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")
+>>> from pyspark.sql.functions import col, split  
+>>> clean1= cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("tempMax", split(col("MAX"), "\\*").getItem(1))  
+>>> clean2 = clean1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("tempMin", split(col("MIN"), "\\*").getItem(1))  
+>>> clean3=clean2.drop('tempMax','tempMin')  
+>>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))  
+>>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))  
+>>> clean6=clean5.drop('MAX','MIN')  
+>>> clean6=clean6.withColumnRenamed("NEW_MAX","MAX")  
+>>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")  
 >>> rdd11=clean6.rdd
->>> clean6.createOrReplaceTempView("cleandatapushkar")
->>> from pyspark.sql.functions import *
+>>> clean6.createOrReplaceTempView("cleandatapushkar")   
+>>> 
+>>> from pyspark.sql.functions import *  
 
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9)").show()
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9)").show()  
 +------+-----+----+----+-----+                                                  
 |   STN|MONTH|DATE|YEAR|  MAX|
 +------+-----+----+----+-----+
@@ -363,7 +364,7 @@ only showing top 2 rows
 
 >>> output2_20102019max=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9)")
 >>> output2_20102019max.coalesce(1).write.format('csv').save("home/amboleps/output/MaxAll.csv", header='true')
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9)").show()
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9)").show()  
 +------+-----+----+----+------+                                                 
 |   STN|MONTH|DATE|YEAR|   MIN|
 +------+-----+----+----+------+
@@ -376,16 +377,15 @@ only showing top 2 rows
 
 
 ### III. Maximum and minimum precipitation with station code and date for year 2015
->>> file_path = "/data/weather/2015"
->>> inTextData = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
-name_list = inTextData.schema.names
->>> name_list = inTextData.schema.names                                         
->>> name_list = str(name_list).strip("['']").split(' ')
->>> rdd2 = rdd1.map(lambda x: str(x).split('=')[1])
->>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))
->>> rdd4 = rdd3.map(lambda x: x[2:-2])
->>> rdd4.saveAsTextFile('home/amboleps/spark2015y'+'temp')
->>> newInData = spark.read.csv('home/amboleps/spark2015y'+'temp',header=False,sep=' ')
+>>> file_path = "/data/weather/2015"  
+>>> inTextData = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
+>>> name_list = inTextData.schema.names                                        
+>>> name_list = str(name_list).strip("['']").split(' ')  
+>>> rdd2 = rdd1.map(lambda x: str(x).split('=')[1])  
+>>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))  
+>>> rdd4 = rdd3.map(lambda x: x[2:-2])  
+>>> rdd4.saveAsTextFile('home/amboleps/spark2015y'+'temp')  
+>>> newInData = spark.read.csv('home/amboleps/spark2015y'+'temp',header=False,sep=' ')  
 >>> cleanData = newInData.drop('_c1','_c4','_c6','_c8','_c10','_c12','_c14')    
 >>> cleanData = cleanData.withColumnRenamed('_c0','STN').withColumnRenamed('_c2','YEARMODA')\
 ...                     .withColumnRenamed('_c3','TEMP').withColumnRenamed('_c5','DEWP')\
@@ -396,20 +396,20 @@ name_list = inTextData.schema.names
 ...                     .withColumnRenamed('_c19','PRCP').withColumnRenamed('_c20','SNDP')\
 ...                     .withColumnRenamed('_c21','FRSHTT')
 >>> from pyspark.sql.functions import col, split
->>> clean1= cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("tempMax", split(col("MAX"), "\\*").getItem(1))
->>> clean2 = clean1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("tempMin", split(col("MIN"), "\\*").getItem(1))
->>> clean3=clean2.drop('tempMax','tempMin')
->>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))
->>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))
->>> clean6=clean5.drop('MAX','MIN')
->>> clean6=clean6.withColumnRenamed("NEW_MAX","MAX")
->>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")
->>> clean6.createOrReplaceTempView("cleandatapushkar")
->>> clean7=clean6.withColumn("PRCP", split(col("PRCP"), "[A-I]").getItem(0)).withColumn("P1", split(col("PRCP"), "[A-I]").getItem(1))
->>> clean7=clean7.drop('P1')
->>> clean7.createOrReplaceTempView("cleandatapushkar")
->>> from pyspark.sql.functions import *
->>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, PRCP from cleandatapushkar where PRCP = (select MAX(PRCP) from cleandatapushkar where PRCP <> 99.99)").show()
+>>> clean1= cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("tempMax", split(col("MAX"), "\\*").getItem(1))  
+>>> clean2 = clean1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("tempMin", split(col("MIN"), "\\*").getItem(1))  
+>>> clean3=clean2.drop('tempMax','tempMin')  
+>>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))  
+>>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))  
+>>> clean6=clean5.drop('MAX','MIN')  
+>>> clean6=clean6.withColumnRenamed("NEW_MAX","MAX")  
+>>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")  
+>>> clean6.createOrReplaceTempView("cleandatapushkar")  
+>>> clean7=clean6.withColumn("PRCP", split(col("PRCP"), "[A-I]").getItem(0)).withColumn("P1", split(col("PRCP"), "[A-I]").getItem(1))  
+>>> clean7=clean7.drop('P1')  
+>>> clean7.createOrReplaceTempView("cleandatapushkar")  
+>>> from pyspark.sql.functions import *  
+>>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, PRCP from cleandatapushkar where PRCP = (select MAX(PRCP) from cleandatapushkar where PRCP <> 99.99)").show()  
 +------+-----+----+----+----+                                                   
 |   STN|MONTH|DATE|YEAR|PRCP|
 +------+-----+----+----+----+
@@ -419,10 +419,10 @@ name_list = inTextData.schema.names
 |418621|   08|  21|2015|9.92|
 +------+-----+----+----+----+
 
->>> output3max=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, PRCP from cleandatapushkar where PRCP = (select MAX(PRCP) from cleandatapushkar where PRCP <> 99.99)")
->>> output3max.coalesce(1).write.format('csv').save("home/amboleps/output/MaxPrecipitation2015.csv", header='true')
+>>> output3max=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, PRCP from cleandatapushkar where PRCP = (select MAX(PRCP) from cleandatapushkar where PRCP  99.99)")
+>>> output3max.coalesce(1).write.format('csv').save("home/amboleps/output/MaxPrecipitation2015.csv", header='true')     
 >>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, PRCP from cleandatapushkar where PRCP = (select MIN(PRCP) from cleandatapushkar where PRCP <> 99.99)").show()
-Hive Session ID = cc95321d-f1f2-455c-af8e-3d78d896315f
+Hive Session ID = cc95321d-f1f2-455c-af8e-3d78d896315f     
 +------+-----+----+----+----+                                                   
 |   STN|MONTH|DATE|YEAR|PRCP|
 +------+-----+----+----+----+
@@ -449,8 +449,8 @@ Hive Session ID = cc95321d-f1f2-455c-af8e-3d78d896315f
 +------+-----+----+----+----+
 only showing top 20 rows
 
->>> c7=clean7.where("PRCP='0.00'")
->>> c7.count()
+>>> c7=clean7.where("PRCP='0.00'")  
+>>> c7.count()  
 2427220                                                                         
 
 >>> output3min=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, PRCP from cleandatapushkar where PRCP = (select MIN(PRCP) from cleandatapushkar where PRCP <> 99.99)")
@@ -459,22 +459,22 @@ only showing top 20 rows
 
 
 ### IV. Count of percentage missing values for mean station pressure (STP) for year 2019 and stations
->>> file_path = "/data/weather/2019"
->>> inTextData = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+>>> file_path = "/data/weather/2019"  
+>>> inTextData = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)  
 >>> name_list = inTextData.schema.names                                         
->>> name_list = str(name_list).strip("['']").split(' ')
->>> names = []
->>> for item in name_list:
-...     if len(item)>0:
-...         names.append(item)
-... 
+>>> name_list = str(name_list).strip("['']").split(' ')  
+>>> names = []  
+>>> for item in name_list:  
+...     if len(item)>0:  
+...         names.append(item)  
+...     
 >>> rdd1 = inTextData.rdd
 >>> rdd2 = rdd1.map(lambda x: str(x).split('=')[1])
->>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))
->>> rdd4 = rdd3.map(lambda x: x[2:-2])
->>> rdd4.saveAsTextFile('home/amboleps/spark2019y'+'temp')
->>> newInData = spark.read.csv('home/amboleps/spark2019y'+'temp',header=False,sep=' ')
->>> cleanData = newInData.drop('_c1','_c4','_c6','_c8','_c10','_c12','_c14')    
+>>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))       
+>>> rdd4 = rdd3.map(lambda x: x[2:-2])  
+>>> rdd4.saveAsTextFile('home/amboleps/spark2019y'+'temp')  
+>>> newInData = spark.read.csv('home/amboleps/spark2019y'+'temp',header=False,sep=' ')  
+>>> cleanData = newInData.drop('_c1','_c4','_c6','_c8','_c10','_c12','_c14')     
 >>> cleanData = cleanData.withColumnRenamed('_c0','STN').withColumnRenamed('_c2','YEARMODA')\
 ...                     .withColumnRenamed('_c3','TEMP').withColumnRenamed('_c5','DEWP')\
 ...                     .withColumnRenamed('_c7','SLP').withColumnRenamed('_c9','STP')\
@@ -482,46 +482,46 @@ only showing top 20 rows
 ...                     .withColumnRenamed('_c15','MXSPD').withColumnRenamed('_c16','GUST')\
 ...                     .withColumnRenamed('_c17','MAX').withColumnRenamed('_c18','MIN')\
 ...                     .withColumnRenamed('_c19','PRCP').withColumnRenamed('_c20','SNDP')\
-...                     .withColumnRenamed('_c21','FRSHTT')
->>> from pyspark.sql.functions import col, split
->>> clean1= cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("tempMax", split(col("MAX"), "\\*").getItem(1))
->>> clean2 = clean1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("tempMin", split(col("MIN"), "\\*").getItem(1))
->>> clean3=clean2.drop('tempMax','tempMin')
->>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))
->>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))
->>> clean6=clean5.drop('MAX','MIN')
+...                     .withColumnRenamed('_c21','FRSHTT') 
+>>> from pyspark.sql.functions import col, split  
+>>> clean1= cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("tempMax", split(col("MAX"), "\\*").getItem(1))  
+>>> clean2 = clean1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("tempMin", split(col("MIN"), "\\*").getItem(1))  
+>>> clean3=clean2.drop('tempMax','tempMin')   
+>>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))        
+>>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))  
+>>> clean6=clean5.drop('MAX','MIN')      
 >>> clean6=clean6.withColumnRenamed("NEW_MAX","MAX")
->>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")
->>> clean6.createOrReplaceTempView("cleandatapushkar")
->>> from pyspark.sql.functions import *
->>> totalVal=(float)(clean6.count())                                            
+>>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")  
+>>> clean6.createOrReplaceTempView("cleandatapushkar")    
+>>> from pyspark.sql.functions import *  
+>>> totalVal=(float)(clean6.count())                                                
 >>> nonMissingFilter=clean6.where("STP!='9999.9'")                              
->>> nonMissingVal=(float)(nonMissingFilter.count())
->>> percentageNonMissingVal= (nonMissingVal/totalVal) * 100
->>> percentageMissingVal = 100 - percentageNonMissingVal
->>> print(percentageMissingVal)
+>>> nonMissingVal=(float)(nonMissingFilter.count())  
+>>> percentageNonMissingVal= (nonMissingVal/totalVal) * 100 
+>>> percentageMissingVal = 100 - percentageNonMissingVal  
+>>> print(percentageMissingVal)  
 27.961149261
 >>> 
 
 
 ### V. Station code with maximum wind gust and date for year 2019
->>> file_path = "/data/weather/2019"
->>> inTextData = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+>>> file_path = "/data/weather/2019"  
+>>> inTextData = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)    
 >>> name_list = inTextData.schema.names                                         
->>> name_list = str(name_list).strip("['']").split(' ')
->>> names = []
->>> for item in name_list:
-...     if len(item)>0:
-...         names.append(item)
-... 
->>> rdd1 = inTextData.rdd
->>> rdd2 = rdd1.map(lambda x: str(x).split('=')[1])
->>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))
+>>> name_list = str(name_list).strip("['']").split(' ')  
+>>> names = []  
+>>> for item in name_list:    
+...     if len(item)>0:  
+...         names.append(item)  
+...  
+>>> rdd1 = inTextData.rdd    
+>>> rdd2 = rdd1.map(lambda x: str(x).split('=')[1])     
+>>> rdd3 = rdd2.map(lambda x: ' '.join(x.split()))   
 >>> rdd4 = rdd3.map(lambda x: x[2:-2])
->>> rdd4.saveAsTextFile('home/amboleps/spark2019y'+'temp')
->>> newInData = spark.read.csv('home/amboleps/spark2019y'+'temp',header=False,sep=' ')
->>> cleanData = newInData.drop('_c1','_c4','_c6','_c8','_c10','_c12','_c14')    
->>> cleanData = cleanData.withColumnRenamed('_c0','STN').withColumnRenamed('_c2','YEARMODA')\
+>>> rdd4.saveAsTextFile('home/amboleps/spark2019y'+'temp')  
+>>> newInData = spark.read.csv('home/amboleps/spark2019y'+'temp',header=False,sep=' ')    
+>>> cleanData = newInData.drop('_c1','_c4','_c6','_c8','_c10','_c12','_c14')       
+>>cleanData = cleanData.withColumnRenamed('_c0','STN').withColumnRenamed('_c2','YEARMODA')\
 ...                     .withColumnRenamed('_c3','TEMP').withColumnRenamed('_c5','DEWP')\
 ...                     .withColumnRenamed('_c7','SLP').withColumnRenamed('_c9','STP')\
 ...                     .withColumnRenamed('_c11','VISIB').withColumnRenamed('_c13','WDSP')\
@@ -529,19 +529,20 @@ only showing top 20 rows
 ...                     .withColumnRenamed('_c17','MAX').withColumnRenamed('_c18','MIN')\
 ...                     .withColumnRenamed('_c19','PRCP').withColumnRenamed('_c20','SNDP')\
 ...                     .withColumnRenamed('_c21','FRSHTT')
->>> from pyspark.sql.functions import col, split
->>> clean1= cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("tempMax", split(col("MAX"), "\\*").getItem(1))
->>> clean2 = clean1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("tempMin", split(col("MIN"), "\\*").getItem(1))
+
+>>> from pyspark.sql.functions import col, split  
+>>> clean1= cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("tempMax", split(col("MAX"), "\\*").getItem(1))  
+>>> clean2 = clean1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("tempMin", split(col("MIN"), "\\*").getItem(1))  
 >>> clean3=clean2.drop('tempMax','tempMin')
->>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))
->>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))
+>>> clean4 = clean3.withColumn("NEW_MIN", clean3["MIN"].cast("double"))  
+>>> clean5 = clean4.withColumn("NEW_MAX", clean3["MAX"].cast("double"))  
 >>> clean6=clean5.drop('MAX','MIN')
->>> clean6=clean6.withColumnRenamed("NEW_MAX","MAX")
->>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")
->>> clean6.createOrReplaceTempView("cleandatapushkar")
->>> from pyspark.sql.functions import *
->>> spark.sql("Select STN, SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, GUST from cleandatapushkar where GUST = (select MAX(GUST) from cleandatapushkar where GUST <> 999.9)").show()
-Hive Session ID = 26d0722d-646f-444c-bbfe-fa524e75b426
+>>> clean6=clean6.withColumnRenamed("NEW_MAX","MAX") 
+>>> clean6=clean6.withColumnRenamed("NEW_MIN","MIN")  
+>>> clean6.createOrReplaceTempView("cleandatapushkar")  
+>>> from pyspark.sql.functions import *  
+>>> spark.sql("Select STN, SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, GUST from cleandatapushkar where GUST = (select MAX(GUST) from cleandatapushkar where GUST <> 999.9)").show() 
+Hive Session ID = 26d0722d-646f-444c-bbfe-fa524e75b426  
 +------+-----+----+----+----+                                                   
 |   STN|MONTH|DATE|YEAR|GUST|
 +------+-----+----+----+----+
