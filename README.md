@@ -1,8 +1,5 @@
 # Spark Project
 
-## Description:
-Developed Py-Spark solutions for efficiently performing the analysis of huge datasets using Scala and Python.
-
 ## Steps for executing the project along with inline outputs:
 
 ### I. Finding the hottest and coldest day along the station code and date for each year
