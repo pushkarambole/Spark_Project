@@ -99,7 +99,6 @@ only showing top 2 rows
 |722577|   07|  12|2012|132.8|
 +------+-----+----+----+-----+
 
-    
 >>> output1_2012max=spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MAX from cleandatapushkar where MAX = (select MAX(MAX) from cleandatapushkar where MAX <> 9999.9 AND YEARMODA like '2012%') AND YEARMODA like '2012%'")
 >>> output1_2012max.coalesce(1).write.format('csv').save("home/amboleps/output/Max2012.csv", header='true')
 >>> spark.sql("Select distinct(STN), SUBSTRING(YEARMODA,5,2) as MONTH, SUBSTRING(YEARMODA,7,2) as DATE, SUBSTRING(YEARMODA,1,4) as YEAR, MIN from cleandatapushkar where MIN = (select MIN(MIN) from cleandatapushkar where MIN <> 9999.9 AND YEARMODA like '2012%') AND YEARMODA like '2012%'").show()
